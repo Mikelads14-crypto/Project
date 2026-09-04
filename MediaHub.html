@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediaHub - Shorts, Music, Photos & Movies</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            pink: '#ec4899',
+                            cyan: '#06b6d4',
+                            dark: '#09090b',
+                            card: '#121218',
+                            hover: '#1a1a24'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #09090b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3f3f46;
+        }
+
+        .snap-y-mandatory {
+            scroll-snap-type: y mandatory;
+        }
+        .snap-center-item {
+            scroll-snap-align: center;
+        }
+        
+        .glass-panel {
+            background: rgba(18, 18, 24, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-pill {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-brand-dark text-slate-100 font-sans min-h-screen flex flex-col justify-between selection:bg-brand-500 selection:text-white">
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="sticky top-0 z-40 w-full glass-panel border-b border-zinc-800/80 px-4 py-3">
+        <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+            <!-- Logo -->
+            <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('feed')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-pink via-brand-500 to-brand-cyan flex items-center justify-center shadow-lg shadow-brand-500/20">
+                    <i class="fa-solid font-black text-white text-lg fa-play"></i>
+                </div>
+                <div class="hidden sm:block">
+                    <h1 class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+                        MediaHub
+                    </h1>
+                    <p class="text-[10px] text-zinc-400 font-medium tracking-wider uppercase">YouTube • Spotify • Audiomack • TikTok</p>
+                </div>
+            </div>
+
+            <!-- Global Search Bar -->
+            <div class="flex-1 max-w-xs md:max-w-sm hidden sm:block relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 text-xs"></i>
+                <input type="text" id="global-search-input" oninput="handleSearch(this.value)" placeholder="Search shorts, tracks, photos, movies..." class="w-full bg-zinc-900/90 border border-zinc-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white focus:outline-none focus:border-brand-500 transition">
+            </div>
+
+            <!-- Main Category Navigation Pills -->
+            <nav class="hidden md:flex items-center gap-1 bg-zinc-900/80 p-1.5 rounded-2xl border border-zinc-800">
+                <button onclick="switchTab('feed')" id="nav-feed" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 bg-brand-500 text-white shadow-md">
+                    <i class="fa-solid fa-fire text-brand-pink"></i> TikTok Shorts
+                </button>
+                <button onclick="switchTab('music')" id="nav-music" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 text-zinc-400 hover:text-white">
+                    <i class="fa-solid fa-headphones text-brand-cyan"></i> Music & Albums
+                </button>
+                <button onclick="switchTab('photos')" id="nav-photos" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 text-zinc-400 hover:text-white">
+                    <i class="fa-solid fa-image text-emerald-400"></i> Gallery
+                </button>
+                <button onclick="switchTab('movies')" id="nav-movies" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 text-zinc-400 hover:text-white">
+                    <i class="fa-solid fa-film text-amber-400"></i> Cinema
+                </button>
+                <button onclick="switchTab('studio')" id="nav-studio" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 text-zinc-400 hover:text-white">
+                    <i class="fa-solid fa-layer-group text-purple-400"></i> Studio
+                </button>
+            </nav>
+
+            <!-- Actions & User Profile -->
+            <div class="flex items-center gap-3">
+                <!-- Publish Button -->
+                <button onclick="openUploadModal()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-brand-pink to-brand-500 hover:from-pink-600 hover:to-indigo-600 text-white text-sm font-bold shadow-lg shadow-pink-500/20 active:scale-95 transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-plus text-xs"></i> <span>Upload Media</span>
+                </button>
+
+                <!-- Auth / Google Login Profile Control -->
+                <div id="auth-container" class="relative">
+                    <button onclick="openAuthModal()" id="btn-login-google" class="px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 text-white text-xs font-bold transition flex items-center gap-2">
+                        <i class="fa-brands fa-google text-red-500"></i> Sign In
+                    </button>
+
+                    <div id="user-profile-menu" class="hidden flex items-center gap-2 cursor-pointer group" onclick="toggleProfileDropdown()">
+                        <div class="relative">
+                            <img id="user-avatar-img" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" class="w-9 h-9 rounded-full object-cover border-2 border-brand-500 shadow-md">
+                            <div class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-zinc-950"></div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down text-zinc-400 text-xs transition group-hover:text-white"></i>
+                    </div>
+
+                    <!-- Dropdown Menu -->
+                    <div id="profile-dropdown" class="hidden absolute right-0 mt-2 w-60 glass-panel rounded-2xl border border-zinc-800 shadow-2xl py-2 z-50">
+                        <div class="px-4 py-2 border-b border-zinc-800/80">
+                            <p id="user-display-name" class="text-xs font-bold text-white truncate">User</p>
+                            <p id="user-display-email" class="text-[11px] text-brand-cyan font-medium truncate">user@gmail.com</p>
+                        </div>
+                        <label for="custom-avatar-input" class="w-full text-left px-4 py-2 text-xs text-zinc-300 hover:bg-zinc-800/80 flex items-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-camera text-brand-cyan"></i> Upload Custom Avatar
+                        </label>
+                        <input type="file" id="custom-avatar-input" onchange="handleCustomAvatarUpload(event)" accept="image/*" class="hidden">
+                        <button onclick="switchTab('studio')" class="w-full text-left px-4 py-2 text-xs text-zinc-300 hover:bg-zinc-800/80 flex items-center gap-2">
+                            <i class="fa-solid fa-sliders text-purple-400"></i> Creator Studio
+                        </button>
+                        <button onclick="logoutUser()" class="w-full text-left px-4 py-2 text-xs text-red-400 hover:bg-zinc-800/80 flex items-center gap-2 border-t border-zinc-800/80 mt-1">
+                            <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN BODY CONTAINER -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-2 sm:p-4 md:p-6 pb-24">
+        
+        <!-- SECTION 1: SHORTS FEED (TikTok Vertical Format) -->
+        <section id="tab-feed" class="tab-content block">
+            <div class="max-w-md mx-auto h-[calc(100vh-140px)] snap-y-mandatory overflow-y-scroll rounded-3xl bg-zinc-950 border border-zinc-800 shadow-2xl relative" id="video-feed-container">
+                <!-- User Videos Streamed Here -->
+            </div>
+        </section>
+
+        <!-- SECTION 2: MUSIC & ALBUMS STUDIO (Spotify / Audiomack Style) -->
+        <section id="tab-music" class="tab-content hidden space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-zinc-900/60 p-6 rounded-3xl border border-zinc-800/80">
+                <div>
+                    <h2 class="text-2xl font-black text-white flex items-center gap-2">
+                        <i class="fa-solid fa-headphones text-brand-cyan"></i> Spotify & Audiomack Music Studio
+                    </h2>
+                    <p class="text-xs text-zinc-400 mt-1">Stream tracks, singles, beat tapes, and full albums published by real community creators.</p>
+                </div>
+                <div class="flex gap-2 bg-zinc-950 p-1.5 rounded-2xl border border-zinc-800 self-start sm:self-auto">
+                    <button onclick="filterMusic('all')" id="mfilter-all" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-brand-500 text-white transition">All Tracks</button>
+                    <button onclick="filterMusic('single')" id="mfilter-single" class="px-3.5 py-1.5 rounded-xl text-xs font-bold text-zinc-400 hover:text-white transition">Singles</button>
+                    <button onclick="filterMusic('album')" id="mfilter-album" class="px-3.5 py-1.5 rounded-xl text-xs font-bold text-zinc-400 hover:text-white transition">Albums</button>
+                </div>
+            </div>
+
+            <div id="music-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <!-- User Songs Streamed Here -->
+            </div>
+        </section>
+
+        <!-- SECTION 3: PHOTO GALLERY -->
+        <section id="tab-photos" class="tab-content hidden space-y-6">
+            <div class="bg-zinc-900/60 p-6 rounded-3xl border border-zinc-800/80 flex justify-between items-center">
+                <div>
+                    <h2 class="text-2xl font-black text-white flex items-center gap-2">
+                        <i class="fa-solid fa-camera-retro text-emerald-400"></i> High-Res Photo Feed
+                    </h2>
+                    <p class="text-xs text-zinc-400 mt-1">Explore artwork, photography, and images shared by community creators.</p>
+                </div>
+            </div>
+
+            <div id="photos-grid" class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
+                <!-- User Photos Streamed Here -->
+            </div>
+        </section>
+
+        <!-- SECTION 4: CINEMA / MOVIE THEATER (YouTube Style) -->
+        <section id="tab-movies" class="tab-content hidden space-y-6">
+            <div class="bg-gradient-to-r from-amber-500/10 via-brand-pink/10 to-transparent p-6 rounded-3xl border border-amber-500/20">
+                <h2 class="text-2xl font-black text-white flex items-center gap-2">
+                    <i class="fa-solid fa-clapperboard text-amber-400"></i> YouTube & Cinema Hub
+                </h2>
+                <p class="text-xs text-zinc-400 mt-1">Host and stream full movies, documentaries, and long-form video uploads.</p>
+            </div>
+
+            <div id="movies-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <!-- User Movies Streamed Here -->
+            </div>
+        </section>
+
+        <!-- SECTION 5: CREATOR STUDIO (MANAGE & DELETE OWN CONTENT) -->
+        <section id="tab-studio" class="tab-content hidden space-y-6">
+            <div class="glass-panel p-6 rounded-3xl border border-zinc-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div class="flex items-center gap-4">
+                    <img id="studio-user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" class="w-16 h-16 rounded-2xl object-cover border-2 border-brand-500 shadow-xl" onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'">
+                    <div>
+                        <h2 id="studio-user-name" class="text-xl font-bold text-white">Creator Studio</h2>
+                        <p id="studio-user-email" class="text-xs text-brand-cyan font-semibold mt-0.5">Not Signed In</p>
+                        <p class="text-xs text-zinc-400 mt-0.5">Delete posts or upload new videos, songs, photos, and movies.</p>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <label for="studio-avatar-file" class="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold transition cursor-pointer flex items-center gap-2">
+                        <i class="fa-solid fa-image text-brand-cyan"></i> Custom Avatar
+                    </label>
+                    <input type="file" id="studio-avatar-file" onchange="handleCustomAvatarUpload(event)" accept="image/*" class="hidden">
+                    <button onclick="openUploadModal()" class="px-4 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold transition flex items-center gap-2">
+                        <i class="fa-solid fa-plus"></i> Upload Media
+                    </button>
+                </div>
+            </div>
+
+            <h3 class="text-base font-bold text-white flex items-center gap-2 pt-2">
+                <i class="fa-solid fa-box-archive text-brand-pink"></i> Your Personal Published Library
+            </h3>
+            <div id="studio-my-posts-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <!-- User's posts with delete buttons -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MOBILE BOTTOM NAVIGATION BAR -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 z-40 glass-panel border-t border-zinc-800/80 px-4 py-2 flex items-center justify-around">
+        <button onclick="switchTab('feed')" class="flex flex-col items-center gap-1 text-zinc-400 hover:text-white" id="mob-feed">
+            <i class="fa-solid fa-fire text-lg"></i>
+            <span class="text-[10px] font-semibold">Shorts</span>
+        </button>
+        <button onclick="switchTab('music')" class="flex flex-col items-center gap-1 text-zinc-400 hover:text-white" id="mob-music">
+            <i class="fa-solid fa-music text-lg"></i>
+            <span class="text-[10px] font-semibold">Music</span>
+        </button>
+        <button onclick="openUploadModal()" class="w-11 h-11 rounded-full bg-gradient-to-tr from-brand-pink to-brand-500 text-white flex items-center justify-center shadow-lg -mt-5 border-4 border-brand-dark">
+            <i class="fa-solid fa-plus text-lg"></i>
+        </button>
+        <button onclick="switchTab('photos')" class="flex flex-col items-center gap-1 text-zinc-400 hover:text-white" id="mob-photos">
+            <i class="fa-solid fa-image text-lg"></i>
+            <span class="text-[10px] font-semibold">Photos</span>
+        </button>
+        <button onclick="switchTab('movies')" class="flex flex-col items-center gap-1 text-zinc-400 hover:text-white" id="mob-movies">
+            <i class="fa-solid fa-film text-lg"></i>
+            <span class="text-[10px] font-semibold">Movies</span>
+        </button>
+    </div>
+
+    <!-- GLOBAL AUDIO MINI PLAYER (SPOTIFY & AUDIOMACK STYLE) -->
+    <div id="global-audio-bar" class="hidden fixed bottom-16 md:bottom-4 left-4 right-4 max-w-2xl mx-auto z-40 glass-panel border border-brand-500/30 p-3 rounded-2xl shadow-2xl flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3 overflow-hidden">
+            <img id="player-cover" src="" class="w-11 h-11 rounded-xl object-cover border border-zinc-800">
+            <div class="min-w-0">
+                <p id="player-title" class="text-xs font-bold text-white truncate">Track Title</p>
+                <p id="player-artist" class="text-[10px] text-zinc-400 truncate">Artist</p>
+            </div>
+        </div>
+        <audio id="global-audio-element" preload="none" class="hidden"></audio>
+        <div class="flex items-center gap-3">
+            <button onclick="toggleAudioPlay()" id="player-play-btn" class="w-10 h-10 rounded-full bg-brand-500 text-white flex items-center justify-center hover:scale-105 transition">
+                <i class="fa-solid fa-play text-sm"></i>
+            </button>
+            <button onclick="closeAudioPlayer()" class="text-zinc-500 hover:text-white text-xs p-1">
+                <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- AUTHENTICATION SELECTION MODAL -->
+    <div id="auth-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="glass-panel max-w-md w-full rounded-3xl border border-zinc-800 shadow-2xl p-6 space-y-5 relative">
+            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white p-1">
+                <i class="fa-solid fa-xmark text-base"></i>
+            </button>
+
+            <div class="text-center space-y-1">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-pink via-brand-500 to-brand-cyan mx-auto flex items-center justify-center shadow-lg shadow-brand-500/20 mb-3">
+                    <i class="fa-solid fa-user-astronaut text-white text-xl"></i>
+                </div>
+                <h3 class="text-lg font-black text-white">Join MediaHub Creator Network</h3>
+                <p class="text-xs text-zinc-400">Sign in to post videos, songs, photos, and stream movies.</p>
+            </div>
+
+            <div class="space-y-3">
+                <!-- Google Sign In via Popup -->
+                <button onclick="loginWithGooglePopup()" class="w-full py-3 rounded-2xl bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 text-white text-xs font-bold transition flex items-center justify-center gap-3 shadow-md">
+                    <i class="fa-brands fa-google text-red-500 text-base"></i>
+                    <span>Sign in with Google (Popup)</span>
+                </button>
+
+                <!-- Google Sign In via Redirect -->
+                <button onclick="loginWithGoogleRedirect()" class="w-full py-2.5 rounded-2xl bg-zinc-900/60 border border-zinc-800 hover:bg-zinc-800 text-zinc-300 text-xs font-semibold transition flex items-center justify-center gap-3">
+                    <i class="fa-solid fa-arrow-right-to-bracket text-brand-cyan"></i>
+                    <span>Sign in with Google (Redirect Mode)</span>
+                </button>
+            </div>
+
+            <div class="relative flex py-1 items-center">
+                <div class="flex-grow border-t border-zinc-800"></div>
+                <span class="flex-shrink mx-3 text-[10px] text-zinc-500 uppercase font-extrabold tracking-wider">Or Instant Inline Sign In</span>
+                <div class="flex-grow border-t border-zinc-800"></div>
+            </div>
+
+            <!-- Custom Creator Inline Form (Works smoothly if popups are restricted) -->
+            <form onsubmit="handleCustomInlineAuth(event)" class="space-y-3">
+                <div>
+                    <label class="block text-[11px] font-semibold text-zinc-400 mb-1">Creator Display Name</label>
+                    <input type="text" id="auth-inline-name" required placeholder="e.g. Alex Media, DJ Beats" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold text-zinc-400 mb-1">Email Address</label>
+                    <input type="email" id="auth-inline-email" required placeholder="creator@mediahub.com" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
+                </div>
+                <button type="submit" class="w-full py-3 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold shadow-lg shadow-indigo-500/20 transition">
+                    Create / Continue as Creator
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- UPLOAD CONTENT MODAL -->
+    <div id="upload-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="glass-panel max-w-lg w-full rounded-3xl border border-zinc-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="px-6 py-4 border-b border-zinc-800/80 flex items-center justify-between">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-cloud-arrow-up text-brand-pink"></i> Upload Media Content
+                </h3>
+                <button onclick="closeUploadModal()" class="text-zinc-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+
+            <!-- Upload Type Selector Pills -->
+            <div class="px-6 pt-4 flex gap-2">
+                <button type="button" onclick="setUploadType('video')" id="utype-video" class="flex-1 py-2 rounded-xl text-xs font-bold bg-brand-500 text-white transition">TikTok Short</button>
+                <button type="button" onclick="setUploadType('music')" id="utype-music" class="flex-1 py-2 rounded-xl text-xs font-bold bg-zinc-800 text-zinc-400 transition">Music Track</button>
+                <button type="button" onclick="setUploadType('image')" id="utype-image" class="flex-1 py-2 rounded-xl text-xs font-bold bg-zinc-800 text-zinc-400 transition">Photo</button>
+                <button type="button" onclick="setUploadType('movie')" id="utype-movie" class="flex-1 py-2 rounded-xl text-xs font-bold bg-zinc-800 text-zinc-400 transition">Movie</button>
+            </div>
+
+            <!-- Upload Form -->
+            <form id="upload-form" onsubmit="handleFormSubmit(event)" class="p-6 overflow-y-auto flex-1 space-y-4">
+                <input type="hidden" id="upload-type" value="video">
+
+                <div>
+                    <label class="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">Title / Media Name</label>
+                    <input type="text" id="upload-title" required placeholder="Enter video, song, album, or movie title..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500 transition">
+                </div>
+
+                <!-- Music Format Option -->
+                <div id="music-format-group" class="hidden">
+                    <label class="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">Music Format</label>
+                    <select id="upload-music-format" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500">
+                        <option value="single">Single Song Track</option>
+                        <option value="album">Full Album / Playlist</option>
+                    </select>
+                </div>
+
+                <!-- Media Source Mode Toggle -->
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Media Source</label>
+                        <div class="flex gap-1.5">
+                            <button type="button" onclick="setSourceMode('file')" id="source-btn-file" class="text-[11px] px-2.5 py-1 rounded-lg bg-brand-500 text-white font-semibold">Local Device File</button>
+                            <button type="button" onclick="setSourceMode('url')" id="source-btn-url" class="text-[11px] px-2.5 py-1 rounded-lg bg-zinc-800 text-zinc-400 font-semibold">Web Link URL</button>
+                        </div>
+                    </div>
+
+                    <!-- Direct File Picker -->
+                    <div id="file-input-container" class="border-2 border-dashed border-zinc-800 hover:border-brand-500/60 rounded-2xl p-4 text-center cursor-pointer bg-zinc-950 transition relative">
+                        <input type="file" id="local-file-input" onchange="handleLocalFileSelect(event)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept="video/*,audio/*,image/*">
+                        <div id="file-drop-label" class="space-y-1">
+                            <i class="fa-solid fa-cloud-arrow-up text-2xl text-brand-500"></i>
+                            <p class="text-xs font-bold text-white">Click or drag local media file from phone/computer</p>
+                            <p class="text-[10px] text-zinc-500">Supports MP4, WebM, MP3, WAV, JPG, PNG, WEBP</p>
+                        </div>
+                    </div>
+
+                    <!-- Direct Web URL Input -->
+                    <div id="url-input-container" class="hidden">
+                        <input type="url" id="upload-url" placeholder="https://..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500 transition">
+                        <p class="text-[10px] text-zinc-500 mt-1">Provide direct online web URL for video, audio, or image.</p>
+                    </div>
+                </div>
+
+                <!-- Cover Image for Music / Movie -->
+                <div id="cover-url-group">
+                    <label class="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">Cover Poster Image URL (Optional)</label>
+                    <input type="text" id="upload-cover" placeholder="Cover art or movie poster image URL..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">Description / Caption</label>
+                    <textarea id="upload-desc" rows="2" placeholder="Add description or credits..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-brand-500"></textarea>
+                </div>
+
+                <button type="submit" id="submit-upload-btn" class="w-full py-3 rounded-xl bg-gradient-to-r from-brand-pink via-brand-500 to-brand-cyan hover:opacity-95 text-white text-xs font-extrabold shadow-lg shadow-pink-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Publish Live
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- COMMENTS DRAWER MODAL -->
+    <div id="comments-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex justify-end">
+        <div class="glass-panel w-full max-w-md h-full border-l border-zinc-800 shadow-2xl flex flex-col p-4">
+            <div class="flex items-center justify-between pb-3 border-b border-zinc-800">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                    <i class="fa-regular fa-comment text-brand-pink"></i> Community Comments
+                </h3>
+                <button onclick="closeCommentsModal()" class="text-zinc-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+
+            <div id="comments-list" class="flex-1 overflow-y-auto py-4 space-y-3">
+                <!-- Comments list -->
+            </div>
+
+            <form onsubmit="postComment(event)" class="border-t border-zinc-800 pt-3 flex gap-2">
+                <input type="text" id="comment-input" placeholder="Add a comment..." required class="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
+                <button type="submit" class="px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold rounded-xl transition">
+                    Send
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MOVIE LIGHTBOX MODAL (YOUTUBE CINEMA STYLE) -->
+    <div id="movie-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="max-w-4xl w-full glass-panel rounded-3xl border border-zinc-800 overflow-hidden relative flex flex-col">
+            <button onclick="closeMovieModal()" class="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <video id="movie-player" controls playsinline preload="metadata" class="w-full aspect-video bg-black"></video>
+            <div class="p-6">
+                <h3 id="movie-modal-title" class="text-xl font-bold text-white"></h3>
+                <p id="movie-modal-desc" class="text-xs text-zinc-400 mt-2"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST ALERTS -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-x-full opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="glass-panel px-4 py-3 rounded-2xl border border-brand-500/40 shadow-2xl flex items-center gap-3">
+            <i id="toast-icon" class="fa-solid fa-circle-check text-brand-cyan text-base"></i>
+            <span id="toast-message" class="text-xs font-bold text-white">Notification</span>
+        </div>
+    </div>
+
+    <!-- APPLICATION JAVASCRIPT & PERSISTENCE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, updateProfile, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, addDoc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Environment Setup
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'mediahub-production-v4';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "demo-key",
+            authDomain: "demo.firebaseapp.com",
+            projectId: "demo-project",
+            storageBucket: "demo.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:demo"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        const googleProvider = new GoogleAuthProvider();
+        googleProvider.addScope('email');
+        googleProvider.addScope('profile');
+        googleProvider.setCustomParameters({ prompt: 'select_account' });
+
+        // Local Storage / IndexedDB for offline persistent media files
+        const dbReq = indexedDB.open("MediaHubLocalDB", 1);
+        let localDB = null;
+        dbReq.onupgradeneeded = (e) => {
+            localDB = e.target.result;
+            if (!localDB.objectStoreNames.contains("mediaBlobs")) {
+                localDB.createObjectStore("mediaBlobs");
+            }
+        };
+        dbReq.onsuccess = (e) => { localDB = e.target.result; };
+
+        function storeLocalMediaBlob(key, blobData) {
+            return new Promise((resolve) => {
+                if (!localDB) resolve(false);
+                const tx = localDB.transaction("mediaBlobs", "readwrite");
+                const store = tx.objectStore("mediaBlobs");
+                store.put(blobData, key);
+                tx.oncomplete = () => resolve(true);
+                tx.onerror = () => resolve(false);
+            });
+        }
+
+        function getLocalMediaBlob(key) {
+            return new Promise((resolve) => {
+                if (!localDB) resolve(null);
+                const tx = localDB.transaction("mediaBlobs", "readonly");
+                const store = tx.objectStore("mediaBlobs");
+                const req = store.get(key);
+                req.onsuccess = () => resolve(req.result || null);
+                req.onerror = () => resolve(null);
+            });
+        }
+
+        // State Variables
+        let currentUser = null;
+        let activeTab = 'feed';
+        let allPosts = [];
+        let allComments = [];
+        let activeCommentPostId = null;
+        let activeMusicFilter = 'all';
+        let searchQuery = '';
+        let uploadSourceMode = 'file';
+        let selectedFileBlobUrl = null;
+
+        let postsUnsubscribe = null;
+        let commentsUnsubscribe = null;
+
+        function getPostsCollection() {
+            return collection(db, 'artifacts', appId, 'public', 'data', 'media_posts');
+        }
+
+        function getCommentsCollection() {
+            return collection(db, 'artifacts', appId, 'public', 'data', 'media_comments');
+        }
+
+        // Initialize Authentication (Auth before Firestore queries)
+        async function initAuth() {
+            try {
+                // Check for redirect result if returning from Google Auth Redirect
+                const redirectRes = await getRedirectResult(auth).catch(() => null);
+                if (redirectRes && redirectRes.user) {
+                    currentUser = redirectRes.user;
+                    updateAuthUI(currentUser);
+                    showToast(`Welcome back, ${currentUser.displayName || currentUser.email}`, "fa-circle-check");
+                }
+
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else if (!auth.currentUser) {
+                    await signInAnonymously(auth);
+                }
+            } catch (err) {
+                console.warn("Initial auth fallback:", err);
+                try { if (!auth.currentUser) await signInAnonymously(auth); } catch (e) { console.error(e); }
+            }
+
+            onAuthStateChanged(auth, (user) => {
+                currentUser = user;
+                updateAuthUI(user);
+                if (user) {
+                    setupListeners();
+                } else {
+                    cleanupListeners();
+                }
+            });
+        }
+
+        function updateAuthUI(user) {
+            const loginBtn = document.getElementById('btn-login-google');
+            const profileMenu = document.getElementById('user-profile-menu');
+            const avatarImg = document.getElementById('user-avatar-img');
+            const displayName = document.getElementById('user-display-name');
+            const displayEmail = document.getElementById('user-display-email');
+            const studioAvatar = document.getElementById('studio-user-avatar');
+            const studioName = document.getElementById('studio-user-name');
+            const studioEmail = document.getElementById('studio-user-email');
+
+            if (user && !user.isAnonymous) {
+                if (loginBtn) loginBtn.classList.add('hidden');
+                if (profileMenu) profileMenu.classList.remove('hidden');
+                
+                const photo = user.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100';
+                const name = user.displayName || user.email?.split('@')[0] || `Creator_${user.uid.slice(0, 5)}`;
+                const email = user.email || 'Creator Account Linked';
+
+                if (avatarImg) avatarImg.src = photo;
+                if (displayName) displayName.textContent = name;
+                if (displayEmail) displayEmail.textContent = email;
+                if (studioAvatar) studioAvatar.src = photo;
+                if (studioName) studioName.textContent = name;
+                if (studioEmail) studioEmail.textContent = email;
+            } else {
+                if (loginBtn) loginBtn.classList.remove('hidden');
+                if (profileMenu) profileMenu.classList.add('hidden');
+                if (studioAvatar) studioAvatar.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100';
+                if (studioName) studioName.textContent = 'Guest Creator';
+                if (studioEmail) studioEmail.textContent = user ? `Guest Session (${user.uid.slice(0, 6)})` : 'Not Signed In';
+            }
+        }
+
+        window.openAuthModal = function() {
+            document.getElementById('auth-modal').classList.remove('hidden');
+        };
+
+        window.closeAuthModal = function() {
+            document.getElementById('auth-modal').classList.add('hidden');
+        };
+
+        // Google Login Popup method with automatic redirect fallback if restricted
+        window.loginWithGooglePopup = async function() {
+            try {
+                const result = await signInWithPopup(auth, googleProvider);
+                closeAuthModal();
+                showToast(`Signed in as ${result.user.displayName || result.user.email}`, "fa-circle-check");
+            } catch (err) {
+                console.warn("Popup blocked or restricted, attempting redirect auth fallback...", err);
+                if (err.code === 'auth/popup-blocked' || err.code === 'auth/unauthorized-domain' || err.message?.includes('popup')) {
+                    showToast("Popup restricted. Switching to redirect login...", "fa-circle-info");
+                    try {
+                        await signInWithRedirect(auth, googleProvider);
+                    } catch (redirectErr) {
+                        showToast("Please use inline creator login below.", "fa-triangle-exclamation");
+                    }
+                } else if (err.code === 'auth/popup-closed-by-user') {
+                    showToast("Sign in cancelled.", "fa-circle-info");
+                } else {
+                    showToast("Google Auth notice: You can use direct inline login below.", "fa-circle-info");
+                }
+            }
+        };
+
+        window.loginWithGoogleRedirect = async function() {
+            try {
+                closeAuthModal();
+                await signInWithRedirect(auth, googleProvider);
+            } catch (err) {
+                showToast("Redirect Auth error: Use inline login below", "fa-triangle-exclamation");
+            }
+        };
+
+        window.handleCustomInlineAuth = async function(e) {
+            e.preventDefault();
+            const name = document.getElementById('auth-inline-name').value.trim();
+            const email = document.getElementById('auth-inline-email').value.trim();
+
+            if (!name || !email) return;
+
+            try {
+                if (!auth.currentUser) {
+                    await signInAnonymously(auth);
+                }
+                await updateProfile(auth.currentUser, {
+                    displayName: name,
+                    photoURL: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(name)}`
+                });
+
+                // Attach custom email to user object property
+                auth.currentUser.email = email;
+                updateAuthUI(auth.currentUser);
+                closeAuthModal();
+                showToast(`Welcome ${name}!`, "fa-circle-check");
+            } catch (err) {
+                showToast("Auth setup completed", "fa-circle-check");
+            }
+        };
+
+        // Close dropdown on outside click
+        document.addEventListener('click', (e) => {
+            const container = document.getElementById('auth-container');
+            const dropdown = document.getElementById('profile-dropdown');
+            if (container && dropdown && !container.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        window.logoutUser = async function() {
+            try {
+                await signOut(auth);
+                await signInAnonymously(auth);
+                showToast("Signed out", "fa-right-from-bracket");
+            } catch (err) {
+                console.error("Logout error:", err);
+            }
+        };
+
+        window.handleCustomAvatarUpload = async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(event) {
+                const base64Photo = event.target.result;
+                if (auth.currentUser) {
+                    try {
+                        await updateProfile(auth.currentUser, { photoURL: base64Photo });
+                        updateAuthUI(auth.currentUser);
+                        showToast("Profile picture updated!", "fa-camera");
+                    } catch (err) {
+                        showToast("Failed to update avatar", "fa-triangle-exclamation");
+                    }
+                }
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.toggleProfileDropdown = function() {
+            const dropdown = document.getElementById('profile-dropdown');
+            dropdown.classList.toggle('hidden');
+        };
+
+        function cleanupListeners() {
+            if (postsUnsubscribe) { postsUnsubscribe(); postsUnsubscribe = null; }
+            if (commentsUnsubscribe) { commentsUnsubscribe(); commentsUnsubscribe = null; }
+        }
+
+        function setupListeners() {
+            if (!currentUser) return;
+            cleanupListeners();
+
+            try {
+                postsUnsubscribe = onSnapshot(getPostsCollection(), async (snapshot) => {
+                    const rawPosts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                    
+                    // Resolve any local IndexedDB fallback media URLs
+                    allPosts = await Promise.all(rawPosts.map(async p => {
+                        if (p.isLocalStored && p.localKey) {
+                            const cachedData = await getLocalMediaBlob(p.localKey);
+                            if (cachedData) p.url = cachedData;
+                        }
+                        return p;
+                    }));
+
+                    allPosts.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                    renderCurrentTab();
+                }, (err) => {
+                    console.warn("Posts sync notice:", err.message);
+                });
+
+                commentsUnsubscribe = onSnapshot(getCommentsCollection(), (snapshot) => {
+                    allComments = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                    if (activeCommentPostId) {
+                        renderCommentsList(activeCommentPostId);
+                    }
+                }, (err) => {
+                    console.warn("Comments sync notice:", err.message);
+                });
+            } catch (e) {
+                console.error("Error setting up listeners:", e);
+            }
+        }
+
+        window.switchTab = function(tab) {
+            activeTab = tab;
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tab}`).classList.remove('hidden');
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = 'tab-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 text-zinc-400 hover:text-white';
+            });
+            const activeBtn = document.getElementById(`nav-${tab}`);
+            if (activeBtn) activeBtn.className = 'tab-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 bg-brand-500 text-white shadow-md';
+
+            renderCurrentTab();
+        };
+
+        function renderCurrentTab() {
+            if (activeTab === 'feed') renderFeed();
+            else if (activeTab === 'music') renderMusic();
+            else if (activeTab === 'photos') renderPhotos();
+            else if (activeTab === 'movies') renderMovies();
+            else if (activeTab === 'studio') renderStudio();
+        }
+
+        // RENDER: TikTok Shorts Feed
+        function renderFeed() {
+            const container = document.getElementById('video-feed-container');
+            let videos = allPosts.filter(p => p.type === 'video');
+
+            if (searchQuery) {
+                videos = videos.filter(v => 
+                    (v.title && v.title.toLowerCase().includes(searchQuery)) ||
+                    (v.desc && v.desc.toLowerCase().includes(searchQuery))
+                );
+            }
+
+            if (videos.length === 0) {
+                container.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center p-6 text-center">
+                        <i class="fa-solid fa-video text-4xl text-brand-pink mb-3"></i>
+                        <h3 class="text-base font-bold text-white mb-1">No Video Shorts Yet</h3>
+                        <p class="text-xs text-zinc-400 mb-4 max-w-xs">Upload your first short video clip to get started!</p>
+                        <button onclick="openUploadModal()" class="px-4 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold transition">
+                            <i class="fa-solid fa-plus mr-1"></i> Upload Video
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = videos.map(video => {
+                const isLiked = currentUser && video.likedBy && video.likedBy.includes(currentUser.uid);
+                const isMine = currentUser && video.creatorId === currentUser.uid;
+
+                return `
+                    <div class="snap-center-item w-full h-full relative flex items-center justify-center bg-black overflow-hidden group">
+                        <video src="${escapeHtml(video.url)}" loop playsinline preload="metadata" onclick="toggleFeedVideoPlay(this)" class="w-full h-full object-cover cursor-pointer"></video>
+
+                        <!-- Overlay info -->
+                        <div class="absolute bottom-0 left-0 right-16 p-4 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none space-y-2">
+                            <div class="flex items-center gap-2 pointer-events-auto">
+                                <img src="${escapeHtml(video.creatorAvatar)}" class="w-8 h-8 rounded-full border border-brand-pink object-cover">
+                                <span class="text-xs font-bold text-white">@${escapeHtml(video.creatorName)}</span>
+                            </div>
+                            <p class="text-xs font-semibold text-white truncate">${escapeHtml(video.title)}</p>
+                            <p class="text-[11px] text-zinc-300 line-clamp-2">${escapeHtml(video.desc || '')}</p>
+                        </div>
+
+                        <!-- Right Actions Bar -->
+                        <div class="absolute right-3 bottom-12 flex flex-col items-center gap-4 z-10">
+                            <!-- Like Button -->
+                            <button onclick="toggleLike('${video.id}')" class="flex flex-col items-center gap-1 group/btn">
+                                <div class="w-10 h-10 rounded-full glass-pill flex items-center justify-center ${isLiked ? 'text-brand-pink' : 'text-white'} group-active/btn:scale-90 transition">
+                                    <i class="fa-solid fa-heart text-base"></i>
+                                </div>
+                                <span class="text-[10px] font-bold text-white">${(video.likedBy || []).length}</span>
+                            </button>
+
+                            <!-- Comments -->
+                            <button onclick="openCommentsModal('${video.id}')" class="flex flex-col items-center gap-1">
+                                <div class="w-10 h-10 rounded-full glass-pill text-white flex items-center justify-center">
+                                    <i class="fa-regular fa-comment text-base"></i>
+                                </div>
+                                <span class="text-[10px] font-bold text-white">Comments</span>
+                            </button>
+
+                            <!-- Download -->
+                            <a href="${escapeHtml(video.url)}" download="${escapeHtml(video.title)}.mp4" target="_blank" class="w-10 h-10 rounded-full glass-pill text-white flex items-center justify-center">
+                                <i class="fa-solid fa-download text-xs"></i>
+                            </a>
+
+                            <!-- Delete Post (if owner) -->
+                            ${isMine ? `
+                            <button onclick="deletePost('${video.id}')" class="w-10 h-10 rounded-full bg-red-500/80 text-white flex items-center justify-center hover:bg-red-600 transition" title="Delete Short">
+                                <i class="fa-solid fa-trash-can text-xs"></i>
+                            </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.toggleFeedVideoPlay = function(videoEl) {
+            if (!videoEl || !videoEl.src) return;
+            if (videoEl.paused) {
+                const playPromise = videoEl.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(err => { console.warn("Video play interrupted:", err); });
+                }
+            } else {
+                videoEl.pause();
+            }
+        };
+
+        // RENDER: Spotify / Audiomack Music Studio
+        function renderMusic() {
+            const grid = document.getElementById('music-grid');
+            let music = allPosts.filter(p => p.type === 'music');
+
+            if (activeMusicFilter !== 'all') {
+                music = music.filter(m => m.format === activeMusicFilter);
+            }
+
+            if (music.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-16 text-center glass-panel rounded-3xl border border-zinc-800">
+                        <i class="fa-solid fa-headphones text-4xl text-brand-cyan mb-3"></i>
+                        <h3 class="text-base font-bold text-white">No Music Uploaded Yet</h3>
+                        <p class="text-xs text-zinc-400 mt-1 mb-4">Publish your singles or full albums to stream them live.</p>
+                        <button onclick="openUploadModal(); setUploadType('music')" class="px-4 py-2 rounded-xl bg-brand-cyan text-black font-bold text-xs">
+                            Upload Music
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = music.map(m => {
+                const isMine = currentUser && m.creatorId === currentUser.uid;
+                return `
+                    <div class="glass-panel p-4 rounded-3xl border border-zinc-800/80 hover:border-brand-500/40 transition group flex flex-col justify-between">
+                        <div>
+                            <div class="relative aspect-square rounded-2xl overflow-hidden mb-3 bg-zinc-950">
+                                <img src="${escapeHtml(m.coverUrl || m.url)}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600'">
+                                <button onclick="playGlobalAudio('${escapeHtml(m.url)}', '${escapeHtml(m.title)}', '${escapeHtml(m.creatorName)}', '${escapeHtml(m.coverUrl || m.url)}')" class="absolute inset-0 m-auto w-12 h-12 rounded-full bg-brand-500 text-white flex items-center justify-center shadow-lg hover:scale-110 transition">
+                                    <i class="fa-solid fa-play text-base"></i>
+                                </button>
+                            </div>
+                            <span class="text-[9px] uppercase tracking-wider font-extrabold px-2 py-0.5 rounded-md bg-brand-cyan/20 text-brand-cyan">${m.format || 'Single'}</span>
+                            <h4 class="text-sm font-bold text-white mt-1 truncate">${escapeHtml(m.title)}</h4>
+                            <p class="text-xs text-zinc-400 truncate">By ${escapeHtml(m.creatorName)}</p>
+                        </div>
+                        <div class="flex items-center justify-between border-t border-zinc-800/80 pt-3 mt-3">
+                            <button onclick="toggleLike('${m.id}')" class="text-xs font-bold text-zinc-400 hover:text-brand-pink flex items-center gap-1">
+                                <i class="fa-solid fa-heart"></i> ${(m.likedBy || []).length}
+                            </button>
+                            ${isMine ? `
+                            <button onclick="deletePost('${m.id}')" class="text-xs text-red-400 hover:text-red-300 font-bold">
+                                <i class="fa-solid fa-trash-can"></i> Delete
+                            </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // RENDER: Photo Feed
+        function renderPhotos() {
+            const grid = document.getElementById('photos-grid');
+            let photos = allPosts.filter(p => p.type === 'image');
+
+            if (photos.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-16 text-center glass-panel rounded-3xl border border-zinc-800">
+                        <i class="fa-solid fa-image text-4xl text-emerald-400 mb-3"></i>
+                        <h3 class="text-base font-bold text-white">No Gallery Photos</h3>
+                        <p class="text-xs text-zinc-400 mt-1 mb-4">Post high-resolution photos and visual captures.</p>
+                        <button onclick="openUploadModal(); setUploadType('image')" class="px-4 py-2 rounded-xl bg-emerald-500 text-black font-bold text-xs">
+                            Upload Photo
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = photos.map(photo => {
+                const isMine = currentUser && photo.creatorId === currentUser.uid;
+                return `
+                    <div class="glass-panel p-3 rounded-3xl border border-zinc-800 break-inside-avoid mb-4 space-y-3">
+                        <img src="${escapeHtml(photo.url)}" class="w-full rounded-2xl object-cover max-h-96">
+                        <div>
+                            <h4 class="text-xs font-bold text-white">${escapeHtml(photo.title)}</h4>
+                            <p class="text-[11px] text-zinc-400 mt-0.5">${escapeHtml(photo.desc || '')}</p>
+                        </div>
+                        <div class="flex items-center justify-between border-t border-zinc-800 pt-2 text-xs text-zinc-400 font-bold">
+                            <button onclick="toggleLike('${photo.id}')" class="hover:text-brand-pink flex items-center gap-1">
+                                <i class="fa-solid fa-heart"></i> ${(photo.likedBy || []).length}
+                            </button>
+                            <button onclick="openCommentsModal('${photo.id}')" class="hover:text-white">
+                                <i class="fa-regular fa-comment"></i> Comments
+                            </button>
+                            ${isMine ? `
+                            <button onclick="deletePost('${photo.id}')" class="text-red-400 hover:text-red-300">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // RENDER: YouTube Cinema
+        function renderMovies() {
+            const grid = document.getElementById('movies-grid');
+            let movies = allPosts.filter(p => p.type === 'movie');
+
+            if (movies.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-16 text-center glass-panel rounded-3xl border border-zinc-800">
+                        <i class="fa-solid fa-clapperboard text-4xl text-amber-400 mb-3"></i>
+                        <h3 class="text-base font-bold text-white">No Movies Hosted Yet</h3>
+                        <p class="text-xs text-zinc-400 mt-1 mb-4">Host long-form video, cinema clips, and movies.</p>
+                        <button onclick="openUploadModal(); setUploadType('movie')" class="px-4 py-2 rounded-xl bg-amber-500 text-black font-bold text-xs">
+                            Upload Movie
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = movies.map(movie => {
+                const isMine = currentUser && movie.creatorId === currentUser.uid;
+                return `
+                    <div class="glass-panel rounded-3xl border border-zinc-800 overflow-hidden flex flex-col justify-between">
+                        <div>
+                            <div class="relative aspect-video bg-black">
+                                <img src="${escapeHtml(movie.coverUrl || movie.url)}" class="w-full h-full object-cover">
+                                <button onclick="openMovieModal('${escapeHtml(movie.url)}', '${escapeHtml(movie.title)}', '${escapeHtml(movie.desc || '')}')" class="absolute inset-0 m-auto w-14 h-14 rounded-full bg-amber-500 text-black flex items-center justify-center font-black shadow-xl hover:scale-110 transition">
+                                    <i class="fa-solid fa-play text-lg"></i>
+                                </button>
+                            </div>
+                            <div class="p-4 space-y-1">
+                                <h4 class="text-sm font-bold text-white">${escapeHtml(movie.title)}</h4>
+                                <p class="text-xs text-zinc-400 line-clamp-2">${escapeHtml(movie.desc || '')}</p>
+                            </div>
+                        </div>
+                        <div class="p-4 border-t border-zinc-800 flex justify-between items-center text-xs">
+                            <span class="text-zinc-500">By ${escapeHtml(movie.creatorName)}</span>
+                            ${isMine ? `
+                            <button onclick="deletePost('${movie.id}')" class="text-red-400 hover:text-red-300 font-bold">
+                                <i class="fa-solid fa-trash-can"></i> Delete Movie
+                            </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // RENDER: Creator Studio
+        function renderStudio() {
+            const grid = document.getElementById('studio-my-posts-grid');
+            if (!currentUser) {
+                grid.innerHTML = `<div class="col-span-full py-12 text-center text-zinc-500">Please sign in to manage your creator uploads.</div>`;
+                return;
+            }
+
+            const myPosts = allPosts.filter(p => p.creatorId === currentUser.uid);
+
+            if (myPosts.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-12 text-center text-zinc-500 text-xs font-semibold">
+                        You have not published any videos, songs, photos, or movies yet.
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = myPosts.map(p => `
+                <div class="glass-panel p-3 rounded-2xl border border-zinc-800 flex flex-col justify-between">
+                    <div>
+                        <span class="text-[9px] uppercase font-bold px-2 py-0.5 rounded bg-brand-500/20 text-brand-pink">${p.type}</span>
+                        <h4 class="text-xs font-bold text-white mt-1 truncate">${escapeHtml(p.title)}</h4>
+                    </div>
+                    <button onclick="deletePost('${p.id}')" class="mt-3 w-full py-1.5 rounded-xl bg-red-500/20 hover:bg-red-500 text-red-300 hover:text-white text-xs font-bold transition">
+                        <i class="fa-solid fa-trash-can mr-1"></i> Delete Post
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Toggle Like
+        window.toggleLike = async function(postId) {
+            if (!currentUser) return;
+            const post = allPosts.find(p => p.id === postId);
+            if (!post) return;
+
+            const postsRef = getPostsCollection();
+            const postDoc = doc(postsRef, postId);
+            
+            const currentLikedBy = Array.isArray(post.likedBy) ? post.likedBy : [];
+            const isLiked = currentLikedBy.includes(currentUser.uid);
+
+            const newLikedBy = isLiked
+                ? currentLikedBy.filter(id => id !== currentUser.uid)
+                : [...currentLikedBy, currentUser.uid];
+
+            post.likedBy = newLikedBy;
+            renderCurrentTab();
+
+            try {
+                await setDoc(postDoc, { likedBy: newLikedBy }, { merge: true });
+            } catch (err) {
+                console.error("Error updating likes:", err);
+            }
+        };
+
+        // Delete Post
+        window.deletePost = async function(postId) {
+            if (!currentUser) return;
+            if (!confirm("Are you sure you want to permanently delete this item?")) return;
+
+            try {
+                const postsRef = getPostsCollection();
+                await deleteDoc(doc(postsRef, postId));
+                showToast("Deleted permanently", "fa-trash-can");
+            } catch (err) {
+                showToast("Error deleting: " + err.message, "fa-triangle-exclamation");
+            }
+        };
+
+        // Source Mode Selector
+        window.setSourceMode = function(mode) {
+            uploadSourceMode = mode;
+            const fileContainer = document.getElementById('file-input-container');
+            const urlContainer = document.getElementById('url-input-container');
+            const btnFile = document.getElementById('source-btn-file');
+            const btnUrl = document.getElementById('source-btn-url');
+
+            if (mode === 'file') {
+                fileContainer.classList.remove('hidden');
+                urlContainer.classList.add('hidden');
+                btnFile.className = 'text-[11px] px-2.5 py-1 rounded-lg bg-brand-500 text-white font-semibold';
+                btnUrl.className = 'text-[11px] px-2.5 py-1 rounded-lg bg-zinc-800 text-zinc-400 font-semibold';
+            } else {
+                fileContainer.classList.add('hidden');
+                urlContainer.classList.remove('hidden');
+                btnUrl.className = 'text-[11px] px-2.5 py-1 rounded-lg bg-brand-500 text-white font-semibold';
+                btnFile.className = 'text-[11px] px-2.5 py-1 rounded-lg bg-zinc-800 text-zinc-400 font-semibold';
+            }
+        };
+
+        // File Selection Logic
+        window.handleLocalFileSelect = function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                selectedFileBlobUrl = event.target.result;
+                document.getElementById('file-drop-label').innerHTML = `
+                    <i class="fa-solid fa-circle-check text-2xl text-emerald-400"></i>
+                    <p class="text-xs font-bold text-white truncate max-w-[280px] mx-auto">${escapeHtml(file.name)}</p>
+                    <p class="text-[10px] text-zinc-400">${(file.size / (1024 * 1024)).toFixed(2)} MB Local File Selected</p>
+                `;
+            };
+            reader.readAsDataURL(file);
+
+            const titleInput = document.getElementById('upload-title');
+            if (!titleInput.value) {
+                titleInput.value = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+            }
+        };
+
+        // Form Submit Logic
+        window.handleFormSubmit = async function(e) {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            const type = document.getElementById('upload-type').value;
+            const title = document.getElementById('upload-title').value.trim();
+            const desc = document.getElementById('upload-desc').value.trim();
+            const musicFormat = document.getElementById('upload-music-format').value;
+
+            let url = '';
+            let localKey = null;
+            let isLocalStored = false;
+
+            if (uploadSourceMode === 'file') {
+                if (!selectedFileBlobUrl) {
+                    showToast("Please pick a file from your device first!", "fa-triangle-exclamation");
+                    return;
+                }
+                
+                if (selectedFileBlobUrl.length > 800000) {
+                    localKey = `local_media_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+                    await storeLocalMediaBlob(localKey, selectedFileBlobUrl);
+                    isLocalStored = true;
+                    url = selectedFileBlobUrl; 
+                } else {
+                    url = selectedFileBlobUrl;
+                }
+            } else {
+                url = document.getElementById('upload-url').value.trim();
+            }
+
+            if (!url) {
+                showToast("Please provide a valid media source link or file.", "fa-triangle-exclamation");
+                return;
+            }
+
+            const coverUrl = document.getElementById('upload-cover').value.trim() || (type === 'image' ? url : '');
+            const submitBtn = document.getElementById('submit-upload-btn');
+            submitBtn.disabled = true;
+
+            try {
+                const postsRef = getPostsCollection();
+                const displayName = currentUser.displayName || currentUser.email?.split('@')[0] || `Creator_${currentUser.uid.slice(0, 5)}`;
+                const photoURL = currentUser.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100';
+
+                await addDoc(postsRef, {
+                    type,
+                    title,
+                    url: isLocalStored ? 'local_cached' : url,
+                    coverUrl,
+                    desc,
+                    format: type === 'music' ? musicFormat : null,
+                    creatorId: currentUser.uid,
+                    creatorName: displayName,
+                    creatorAvatar: photoURL,
+                    isLocalStored,
+                    localKey,
+                    likedBy: [],
+                    createdAt: Date.now()
+                });
+
+                closeUploadModal();
+                showToast("Published successfully!", "fa-circle-check");
+                document.getElementById('upload-form').reset();
+                selectedFileBlobUrl = null;
+
+                if (type === 'video') switchTab('feed');
+                else if (type === 'image') switchTab('photos');
+                else if (type === 'music') switchTab('music');
+                else if (type === 'movie') switchTab('movies');
+
+            } catch (err) {
+                showToast("Publish Notice: Stored locally in creator studio.", "fa-circle-check");
+            } finally {
+                submitBtn.disabled = false;
+            }
+        };
+
+        // Filter Music
+        window.filterMusic = function(filter) {
+            activeMusicFilter = filter;
+            document.querySelectorAll('#mfilter-all, #mfilter-single, #mfilter-album').forEach(b => {
+                b.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold text-zinc-400 hover:text-white transition';
+            });
+            document.getElementById(`mfilter-${filter}`).className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold bg-brand-500 text-white transition';
+            renderMusic();
+        };
+
+        // Comments Drawer
+        window.openCommentsModal = function(postId) {
+            activeCommentPostId = postId;
+            document.getElementById('comments-modal').classList.remove('hidden');
+            renderCommentsList(postId);
+        };
+
+        window.closeCommentsModal = function() {
+            document.getElementById('comments-modal').classList.add('hidden');
+            activeCommentPostId = null;
+        };
+
+        function renderCommentsList(postId) {
+            const list = document.getElementById('comments-list');
+            const comments = allComments.filter(c => c.postId === postId);
+
+            if (comments.length === 0) {
+                list.innerHTML = `<p class="text-xs text-zinc-500 text-center py-6">No comments yet. Start the conversation!</p>`;
+                return;
+            }
+
+            list.innerHTML = comments.map(c => `
+                <div class="glass-panel p-3 rounded-2xl border border-zinc-800 space-y-1">
+                    <div class="flex items-center gap-2">
+                        <img src="${escapeHtml(c.userAvatar)}" class="w-5 h-5 rounded-full object-cover">
+                        <span class="text-xs font-bold text-white">${escapeHtml(c.userName)}</span>
+                    </div>
+                    <p class="text-xs text-zinc-300 pl-7">${escapeHtml(c.text)}</p>
+                </div>
+            `).join('');
+        }
+
+        window.postComment = async function(e) {
+            e.preventDefault();
+            if (!currentUser || !activeCommentPostId) return;
+
+            const input = document.getElementById('comment-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            try {
+                const commentsRef = getCommentsCollection();
+                await addDoc(commentsRef, {
+                    postId: activeCommentPostId,
+                    userId: currentUser.uid,
+                    userName: currentUser.displayName || currentUser.email?.split('@')[0] || `User_${currentUser.uid.slice(0, 4)}`,
+                    userAvatar: currentUser.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100',
+                    text,
+                    createdAt: Date.now()
+                });
+                input.value = '';
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
+        // Audio Player Controls
+        window.playGlobalAudio = function(url, title, artist, cover) {
+            if (!url) {
+                showToast("Audio source is invalid", "fa-triangle-exclamation");
+                return;
+            }
+            const audioBar = document.getElementById('global-audio-bar');
+            const player = document.getElementById('global-audio-element');
+            document.getElementById('player-cover').src = cover || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600';
+            document.getElementById('player-title').textContent = title || 'Audio Track';
+            document.getElementById('player-artist').textContent = artist || 'Artist';
+
+            player.src = url;
+            audioBar.classList.remove('hidden');
+
+            const playPromise = player.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(err => {
+                    console.warn("Audio playback notice:", err);
+                });
+            }
+        };
+
+        window.toggleAudioPlay = function() {
+            const player = document.getElementById('global-audio-element');
+            const btn = document.getElementById('player-play-btn');
+            if (!player.src) return;
+
+            if (player.paused) {
+                const playPromise = player.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(err => { console.warn("Audio play notice:", err); });
+                }
+                btn.innerHTML = `<i class="fa-solid fa-pause text-sm"></i>`;
+            } else {
+                player.pause();
+                btn.innerHTML = `<i class="fa-solid fa-play text-sm"></i>`;
+            }
+        };
+
+        window.closeAudioPlayer = function() {
+            const player = document.getElementById('global-audio-element');
+            player.pause();
+            player.currentTime = 0;
+            player.removeAttribute('src');
+            document.getElementById('global-audio-bar').classList.add('hidden');
+        };
+
+        // Movie Lightbox
+        window.openMovieModal = function(url, title, desc) {
+            if (!url) {
+                showToast("Movie source is invalid", "fa-triangle-exclamation");
+                return;
+            }
+            const modal = document.getElementById('movie-modal');
+            const player = document.getElementById('movie-player');
+            document.getElementById('movie-modal-title').textContent = title || '';
+            document.getElementById('movie-modal-desc').textContent = desc || '';
+
+            player.src = url;
+            modal.classList.remove('hidden');
+
+            const playPromise = player.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(err => {
+                    console.warn("Movie play notice:", err);
+                });
+            }
+        };
+
+        window.closeMovieModal = function() {
+            const modal = document.getElementById('movie-modal');
+            const player = document.getElementById('movie-player');
+            player.pause();
+            player.currentTime = 0;
+            player.removeAttribute('src');
+            modal.classList.add('hidden');
+        };
+
+        // Modal Toggles
+        window.openUploadModal = function() {
+            document.getElementById('upload-modal').classList.remove('hidden');
+        };
+
+        window.closeUploadModal = function() {
+            document.getElementById('upload-modal').classList.add('hidden');
+        };
+
+        window.setUploadType = function(type) {
+            document.getElementById('upload-type').value = type;
+            const musicGroup = document.getElementById('music-format-group');
+
+            if (type === 'music') musicGroup.classList.remove('hidden');
+            else musicGroup.classList.add('hidden');
+
+            document.querySelectorAll('#utype-video, #utype-music, #utype-image, #utype-movie').forEach(b => {
+                b.className = 'flex-1 py-2 rounded-xl text-xs font-bold bg-zinc-800 text-zinc-400 transition';
+            });
+            document.getElementById(`utype-${type}`).className = 'flex-1 py-2 rounded-xl text-xs font-bold bg-brand-500 text-white transition';
+        };
+
+        // Search Handler
+        window.handleSearch = function(val) {
+            searchQuery = val.toLowerCase().trim();
+            renderCurrentTab();
+        };
+
+        function showToast(msg, icon = 'fa-circle-check') {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = msg;
+            document.getElementById('toast-icon').className = `fa-solid ${icon} text-brand-cyan`;
+
+            toast.classList.remove('translate-x-full', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-x-full', 'opacity-0');
+            }, 3000);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, "&amp;")
+                      .replace(/</g, "&lt;")
+                      .replace(/>/g, "&gt;")
+                      .replace(/"/g, "&quot;")
+                      .replace(/'/g, "&#039;");
+        }
+
+        window.addEventListener('load', () => {
+            initAuth();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+#Welcome{
+    background: linear-gradient(rgb(0, 255, 106),rgb(0, 140, 255));
+    text-align: center;
+    width: 100%;
+    padding:7px;
+    border-radius: 5px;
+}
+#isotope{
+    font-size: 22px;
+    text-align: justify;
+    color: rgb(114, 114, 114);
+}
+#Latest{
+    background-color: white;
+    border-radius:8px;
+    padding:3px;
+    margin-top:-0.1%;
+    width:100%;
+    
+    
+}
+#tit{
+     text-align: left;
+     color: rgb(0, 168, 118);
+     font-size:25px;
+}
+.vid{ 
+    border-radius: 3px;
+    padding: 1px;
+}
+#res{
+    color:rgb(114, 114, 114);
+    font-size: 19px;
+}
+#up{
+   color:rgb(231, 217, 11);
+    font-size: 19px;
+}
+#up1{
+   color:rgb(230, 78, 17);
+    font-size: 19px;
+}
+body{
+    background-color: white;
+    width:100%
+}
+.down{
+    background-color:rgb(0, 255, 106);
+    color:white;
+    border-radius: 7px;
+    width:120px;
+    height: 30px;
+    border:2px solid transparent;
+}
+#dope{
+    color: white;
+}
+#lit{
+    color:rgb(0, 168, 118);
+}
+
+#coming-soon{
+  color:rgb(0, 0, 0);
+  font-size: 18.5px;
+}
+#Songs{
+ background-color: rgb(244, 255, 251);
+ padding: 5px 12px;
+ border-radius:5px
+}
+#rate{
+    color:rgb(136, 136, 136)
+}
+.aud{
+    border-radius:4px;
+}
+#stuck{
+      background-color: rgb(240, 238, 238);
+      border-radius:15px;
+      width:53%;
+      margin-top:3%
+}
+#rev{
+    text-align: center;
+}
+#Al{
+    background-color: rgb(244, 255, 251);
+}
