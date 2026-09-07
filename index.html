@@ -1,68 +1,792 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="emerald">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hype Media Hub Free</title>
-    <link href="style.css" rel="stylesheet">
+    <!-- Font Awesome for sleek modern icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
-      html{
-        background-color: rgb(240, 240, 240);
-      }
-      h1{
-        color: white;
-      }
+        :root {
+            /* Fonts */
+            --font-heading: 'Outfit', sans-serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* --- Theme 1: Emerald Blue Theme (Default) --- */
+        html[data-theme="emerald"] {
+            --bg-page: #03131e;
+            --bg-header: rgba(4, 25, 38, 0.85);
+            --bg-card: #082338;
+            --bg-card-hover: #0d324f;
+            --bg-subtle: #051b2a;
+            --border-color: rgba(6, 182, 212, 0.25);
+            --border-highlight: rgba(6, 182, 212, 0.5);
+            --text-primary: #f0fdfa;
+            --text-secondary: #a5f3fc;
+            --text-muted: #67e8f9;
+            --accent-primary: #06b6d4;
+            --accent-glow: rgba(6, 182, 212, 0.35);
+            --accent-secondary: #0284c7;
+            --badge-bg: rgba(6, 182, 212, 0.15);
+            --badge-text: #22d3ee;
+            --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.65);
+            --audio-filter: hue-rotate(140deg);
+        }
+
+        /* --- Theme 2: Purple & White Theme --- */
+        html[data-theme="purple"] {
+            --bg-page: #f8fafc;
+            --bg-header: rgba(255, 255, 255, 0.9);
+            --bg-card: #ffffff;
+            --bg-card-hover: #f1f5f9;
+            --bg-subtle: #f3f0ff;
+            --border-color: rgba(124, 58, 237, 0.18);
+            --border-highlight: rgba(124, 58, 237, 0.4);
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --accent-primary: #7c3aed;
+            --accent-glow: rgba(124, 58, 237, 0.25);
+            --accent-secondary: #6d28d9;
+            --badge-bg: rgba(124, 58, 237, 0.1);
+            --badge-text: #7c3aed;
+            --shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+            --audio-filter: hue-rotate(220deg);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            line-height: 1.6;
+            transition: var(--transition);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        a:hover {
+            opacity: 0.85;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background-color: var(--bg-header);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 0;
+            transition: var(--transition);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-logo i {
+            font-size: 1.8rem;
+            color: var(--accent-primary);
+        }
+
+        .brand-logo h1 {
+            font-size: 1.4rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .free-badge {
+            font-size: 0.75rem;
+            background-color: var(--badge-bg);
+            color: var(--badge-text);
+            padding: 2px 8px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .theme-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .theme-btn-group {
+            display: flex;
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            padding: 3px;
+        }
+
+        .theme-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition);
+        }
+
+        .theme-btn.active {
+            background: var(--accent-primary);
+            color: #ffffff;
+            box-shadow: 0 2px 10px var(--accent-glow);
+        }
+
+        main {
+            flex: 1;
+            padding: 30px 0 60px 0;
+        }
+
+        .section-block {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            margin-bottom: 35px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--accent-primary);
+        }
+
+        /* Movie / Media Player Cards */
+        .media-card {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .media-info-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-subtle);
+            padding: 12px 18px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .media-title-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .media-title-group h3 {
+            font-size: 1.15rem;
+            color: var(--text-primary);
+        }
+
+        .tags-container {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tag-pill {
+            font-size: 0.8rem;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: var(--badge-bg);
+            color: var(--badge-text);
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .tag-pill.upgrade-pill {
+            background: rgba(234, 179, 8, 0.15);
+            color: #eab308;
+            border: 1px solid rgba(234, 179, 8, 0.3);
+        }
+
+        .responsive-video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: var(--radius-md);
+            background: #000;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .responsive-video-wrapper iframe,
+        .responsive-video-wrapper video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        .media-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            background: var(--bg-subtle);
+            padding: 16px;
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--accent-primary);
+        }
+
+        .download-box {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-top: 10px;
+        }
+
+        .download-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .download-options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+        }
+
+        .download-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 18px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .download-btn:hover {
+            background: var(--accent-primary);
+            color: #ffffff;
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--accent-glow);
+        }
+
+        .download-btn .qual-badge {
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: var(--badge-bg);
+            color: var(--badge-text);
+        }
+
+        .download-btn:hover .qual-badge {
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+
+        .countdown-banner {
+            background: linear-gradient(135deg, var(--bg-subtle) 0%, var(--bg-card) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .countdown-info h4 {
+            font-size: 1rem;
+            color: var(--text-primary);
+        }
+
+        .timer-display {
+            display: flex;
+            gap: 10px;
+            font-weight: 700;
+            font-family: var(--font-heading);
+            color: var(--accent-primary);
+            font-size: 1.1rem;
+        }
+
+        .timer-unit {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-color);
+            padding: 4px 10px;
+            border-radius: var(--radius-sm);
+            text-align: center;
+            min-width: 60px;
+        }
+
+        .timer-unit span {
+            display: block;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .album-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .album-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .album-art-card {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 15px;
+            text-align: center;
+        }
+
+        .album-art-card img {
+            width: 100%;
+            max-width: 280px;
+            height: auto;
+            border-radius: var(--radius-sm);
+            object-fit: cover;
+            box-shadow: var(--shadow);
+            margin-bottom: 12px;
+        }
+
+        .album-art-card p {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .track-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .track-item {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .track-item p {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+
+        audio {
+            width: 100%;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            outline: none;
+            filter: var(--audio-filter);
+        }
+
+        /* Sound Victory Card */
+        .sound-card {
+            margin-top: 30px;
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        footer {
+            background: var(--bg-header);
+            border-top: 1px solid var(--border-color);
+            padding: 35px 0 25px 0;
+            margin-top: auto;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .footer-badge-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--accent-primary);
+            color: #ffffff;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 15px var(--accent-glow);
+            transition: var(--transition);
+        }
+
+        .footer-badge-link:hover {
+            transform: translateY(-2px);
+            background: var(--accent-secondary);
+            color: #ffffff;
+        }
+
+        .footer-info {
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            margin-top: 8px;
+        }
+
+        .copyright {
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 640px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .theme-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .section-block {
+                padding: 18px;
+            }
+
+            .countdown-banner {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .timer-display {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
     </style>
 </head>
 <body>
-  <div id="Welcome">
-    <h1>Welcome To MediaHub Free</h1>
-    </div>
 
-    <div id="Latest">
-      <h2 id="tit">Latest Movies/Clips</h2>
-      <p  id="isotope">Isotopic Chew Official Trailer</p>
-      <p id="res">Quality: 720P</p>
-       <p id="up1">Size: 155MB</p>         
-      <p id="up">Upgrade to use 4K</p>       
-     
-      <iframe allow="fullscreen" allowfullscreen height="500" src="https://streamable.com/e/m1uja3?" width="580" style="border:none;" class="vid"></iframe>
-      <p>Description: A school where students find weird radioactive gums and become superheroes, also a student find mind controlling powers and use it to attack everyone around.</p>
-      
+    <header>
+        <div class="container header-content">
+            <div class="brand-logo">
+                <i class="fa-solid fa-play-circle"></i>
+                <h1 id="Welcome">Hype Media Hub <span class="free-badge">Free</span></h1>
+            </div>
+
+            <div class="theme-controls">
+                <div class="theme-btn-group" role="radiogroup" aria-label="Theme Selector">
+                    <button class="theme-btn active" id="btn-emerald" onclick="setTheme('emerald')" aria-label="Emerald Blue Theme">
+                        <i class="fa-solid fa-gem"></i> Emerald Blue
+                    </button>
+                    <button class="theme-btn" id="btn-purple" onclick="setTheme('purple')" aria-label="Purple White Theme">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Purple
+                    </button>
+                </div>
+
+                <a href="MediaHubBronze.html" class="tag-pill upgrade-pill" style="text-decoration: none;">
+                    <i class="fa-solid fa-crown"></i> Upgrade 4K
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="section-block" id="Latest">
+            <div class="section-header">
+                <h2 class="section-title" id="tit">
+                    <i class="fa-solid fa-film"></i> Latest Movies / Clips
+                </h2>
+                <div class="tags-container">
+                    <span class="tag-pill"><i class="fa-solid fa-gauge-high"></i> Quality: 720P</span>
+                    <span class="tag-pill"><i class="fa-solid fa-file-video"></i> Size: 155MB</span>
+                    <span class="tag-pill upgrade-pill" id="up"><i class="fa-solid fa-bolt"></i> Upgrade for 4K</span>
+                </div>
+            </div>
+
+            <div class="media-card">
+                <div class="media-info-bar">
+                    <div class="media-title-group">
+                        <i class="fa-solid fa-clapperboard" style="color: var(--accent-primary);"></i>
+                        <h3 id="isotope">Isotopic Chew Official Trailer</h3>
+                    </div>
+                    <span class="tag-pill" id="res">HD 720P Available</span>
+                </div>
+
+                <!-- Video Frame -->
+                <div class="responsive-video-wrapper" id="chew">
+                    <iframe 
+                        src="https://streamable.com/e/m1uja3?" 
+                        allow="fullscreen" 
+                        allowfullscreen 
+                        title="Isotopic Chew Official Trailer"
+                        class="vid">
+                    </iframe>
+                </div>
+
+                <p class="media-description">
+                    <strong>Description:</strong> A school where students find weird radioactive gums and become superheroes, also a student find mind controlling powers and use it to attack everyone around.
+                </p>
+
+                <!-- Responsive Download Options (720p & 360p) -->
+                <div class="download-box">
+                    <div class="download-title">
+                        <i class="fa-solid fa-download"></i> Download Video Options
+                    </div>
+                    <div class="download-options-grid">
+                        <!-- High Quality 720p -->
+                        <a href="https://streamable.com/m1uja3" download class="download-btn">
+                            <span><i class="fa-solid fa-file-arrow-down"></i> Download 720p HD</span>
+                            <span class="qual-badge">155 MB</span>
+                        </a>
+
+                        <!-- Standard Quality 360p -->
+                        <a href="https://streamable.com/m1uja3" download class="download-btn">
+                            <span><i class="fa-solid fa-mobile-screen-button"></i> Download 360p SD</span>
+                            <span class="qual-badge">65 MB</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section-block" id="Songs">
+            <div class="section-header">
+                <h2 class="section-title" id="lit">
+                    <i class="fa-solid fa-music"></i> Songs / Albums
+                </h2>
+            </div>
+
+            <!-- Christmas Event Banner & Video -->
+            <div class="countdown-banner">
+                <div class="countdown-info">
+                    <h4 id="coming-soon"><i class="fa-solid fa-gift"></i> Christmas In July:</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">Exclusive Holiday Release Stream</p>
+                </div>
+                <div class="timer-display" id="countdown-timer">
+                    <div class="timer-unit"><span id="days">80</span>Days</div>
+                    <div class="timer-unit"><span id="hours">24</span>Hrs</div>
+                    <div class="timer-unit"><span id="mins">60</span>Mins</div>
+                    <div class="timer-unit"><span id="secs">60</span>Secs</div>
+                </div>
+            </div>
+
+            <div class="responsive-video-wrapper" id="Christm" style="margin-bottom: 25px;">
+                <iframe 
+                    src="https://streamable.com/e/zn7djo?" 
+                    allow="fullscreen" 
+                    allowfullscreen 
+                    id="chrt" 
+                    title="Christmas In July Video">
+                </iframe>
+            </div>
+
+            <!-- Album "Stuck In the Loop" Section -->
+            <div class="album-grid" id="Al">
+                <div class="album-art-card">
+                    <img src="Your paragraph text (1).png" alt="Stuck In the Loop Album Cover" id="album-cover">
+                    <p id="stuck"><i class="fa-solid fa-record-vinyl"></i> Stuck In the Loop</p>
+                </div>
+
+                <div class="track-list">
+                    <div class="track-item">
+                        <p><i class="fa-solid fa-circle-play"></i> 1. Rise Up I</p>
+                        <audio src="Burning_Through_the_Doubt.mp3" controls class="aud"></audio>
+                    </div>
+
+                    <div class="track-item">
+                        <p><i class="fa-solid fa-circle-play"></i> 2. Stuck In the Loop</p>
+                        <audio src="The_Silent_Door.mp3" controls class="aud"></audio>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sound Victory Section -->
+            <div class="sound-card" id="sound">
+                <div class="media-title-group">
+                    <i class="fa-solid fa-volume-high" style="color: var(--accent-primary);"></i>
+                    <h3>Out of the Loop I</h3>
+                </div>
+
+                <div class="responsive-video-wrapper">
+                    <iframe src="The Sound of Victory.mp4" title="The Sound of Victory Video"></iframe>
+                </div>
+
+                <div>
+                    <audio src="The_Empire_We_Built.mp3" controls></audio>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p style="font-weight: 600; font-size: 1.1rem; color: var(--text-primary);">Try out some of our apps</p>
+            
+            <div class="footer-links">
+                <a href="https://hype-quiz.netlify.app/" target="_blank" class="footer-badge-link">
+                    <i class="fa-solid fa-gamepad"></i> Hype Quiz Maker V9
+                </a>
+                <a href="MediaHubBronze.html" class="footer-badge-link" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                    <i class="fa-solid fa-turn-up"></i> Click to Upgrade to Next Tier
+                </a>
+            </div>
+
+            <div class="footer-info">
+                <p><i class="fa-solid fa-spinner fa-spin"></i> Media Hub Independent Coming soon.....</p>
+                <p><i class="fa-solid fa-palette"></i> Hype Cool Wallpapers and designs Coming soon....</p>
+            </div>
+
+            <p class="copyright" id="rev">&copy; Hype Studios 2026 All rights reserved</p>
+        </div>
+    </footer>
+
+    <script>
+        /* Function to set and save theme selection */
+        function setTheme(themeName) {
+            document.documentElement.setAttribute('data-theme', themeName);
+            localStorage.setItem('hype_theme', themeName);
+            
+            // Update button UI states
+            document.getElementById('btn-emerald').classList.toggle('active', themeName === 'emerald');
+            document.getElementById('btn-purple').classList.toggle('active', themeName === 'purple');
+        }
+
+        /* Load saved theme or default to emerald */
+        (function initTheme() {
+            const savedTheme = localStorage.getItem('hype_theme') || 'emerald';
+            setTheme(savedTheme);
+        })();
+
+        /* Simple countdown timer animation logic */
+        let totalSeconds = (80 * 86400) + (24 * 3600) + (60 * 60) + 60;
         
-      
-      <p>
-      <a href="https://streamable.com/m1uja3" download>Download Video</a>
-     </p>
-     <div id=Songs>
-         <h2 id="lit">Songs / Albums</h2>
-        <p id="coming-soon">Coming Soon.. Christmas In July: Deluxe</p>
-        <div id="Christm">
-          <iframe allow="fullscreen" allowfullscreen height="300" src="https://streamable.com/e/zn7djo?" width="350" style="border:none;"id=chrt autoplay></iframe>
+        function updateTimer() {
+            if (totalSeconds <= 0) return;
+            totalSeconds--;
 
-        </div>
-        <div id="Al">
-        <div id="stuck">
-          <img src="" alt="image">
-          <p id="stuck">Stuck In the Loop:</p>
-          <span>
-          <p> 1. Rise Up I(Interlude)</p>
-          <audio src="Burning_Through_the_Doubt.mp3" controls class="aud"></audio>
-          </span>
-        </div>
-        </div>
-     </div>
-     <div></div>
-    
-     <hr />
-<footer>
-  <p>Try out some of our apps</p>
-  <a href="https://hype-quiz.netlify.app/">Hype Quiz Maker V9</a>
-  <p>Media Hub Independent Coming soon.....</p>
-  <p>Hype Cool Wallpapers and designs Coming soon....</p>
-  <a href="MediaHubBronze.html">Click to Upgrade to next tier</a>
-  <p id="rev">&copy Hype Studios 2026 All rights reservered</p>
+            const days = Math.floor(totalSeconds / 86400);
+            const hours = Math.floor((totalSeconds % 86400) / 3600);
+            const mins = Math.floor((totalSeconds % 3600) / 60);
+            const secs = Math.floor(totalSeconds % 60);
 
-</footer>
+            const daysEl = document.getElementById('days');
+            const hoursEl = document.getElementById('hours');
+            const minsEl = document.getElementById('mins');
+            const secsEl = document.getElementById('secs');
+
+            if (daysEl) daysEl.innerText = days;
+            if (hoursEl) hoursEl.innerText = hours;
+            if (minsEl) minsEl.innerText = mins;
+            if (secsEl) secsEl.innerText = secs;
+        }
+
+        setInterval(updateTimer, 1000);
+    </script>
 </body>
 </html>
