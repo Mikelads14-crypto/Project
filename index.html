@@ -1137,9 +1137,65 @@
     </footer>
 
     <script>
-        /* --- ... existing theme & countdown code ... --- */
+        // Explicitly attach setTheme to window so HTML inline onclick events can access it
+        window.setTheme = function setTheme(themeName) {
+            document.documentElement.setAttribute('data-theme', themeName);
+            localStorage.setItem('hype_theme', themeName);
+            
+            // Update button UI active states safely
+            const themes = ['emerald', 'purple', 'frost', 'fire'];
+            themes.forEach(t => {
+                const btn = document.getElementById('btn-' + t);
+                if (btn) {
+                    if (t === themeName) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                }
+            });
+        };
 
-        /* --- 3. Listeners & Downloads Real Calculation Engine --- */
+        // Initialize saved theme immediately on load
+        (function initTheme() {
+            const savedTheme = localStorage.getItem('hype_theme') || 'emerald';
+            window.setTheme(savedTheme);
+        })();
+
+        // Calculate real 50-day countdown target timestamp
+        let countdownTarget = localStorage.getItem('hype_countdown_target');
+        if (!countdownTarget) {
+            countdownTarget = Date.now() + (50 * 24 * 60 * 60 * 1000);
+            localStorage.setItem('hype_countdown_target', countdownTarget);
+        } else {
+            countdownTarget = parseInt(countdownTarget, 10);
+        }
+
+        function updateTimer() {
+            const now = Date.now();
+            let diff = Math.max(0, Math.floor((countdownTarget - now) / 1000));
+
+            const days = Math.floor(diff / 86400);
+            diff %= 86400;
+            const hours = Math.floor(diff / 3600);
+            diff %= 3600;
+            const mins = Math.floor(diff / 60);
+            const secs = diff % 60;
+
+            const daysEl = document.getElementById('days');
+            const hoursEl = document.getElementById('hours');
+            const minsEl = document.getElementById('mins');
+            const secsEl = document.getElementById('secs');
+
+            if (daysEl) daysEl.innerText = days;
+            if (hoursEl) hoursEl.innerText = String(hours).padStart(2, '0');
+            if (minsEl) minsEl.innerText = String(mins).padStart(2, '0');
+            if (secsEl) secsEl.innerText = String(secs).padStart(2, '0');
+        }
+
+        setInterval(updateTimer, 1000);
+        updateTimer();
+
         const metricsState = {
             totalListeners: parseInt(localStorage.getItem('hype_total_listeners')) || 0,
             totalDownloads: parseInt(localStorage.getItem('hype_total_downloads')) || 0,
@@ -1150,18 +1206,27 @@
             track3Plays: parseInt(localStorage.getItem('hype_t3_plays')) || 0
         };
 
-        function updateMetricsUI() {
-            document.getElementById('total-listeners-display').innerText = metricsState.totalListeners.toLocaleString();
-            document.getElementById('total-downloads-display').innerText = metricsState.totalDownloads.toLocaleString();
-            document.getElementById('active-streams-display').innerText = (metricsState.track1Plays + metricsState.track2Plays + metricsState.track3Plays).toLocaleString();
-            document.getElementById('dl-720-count').innerText = metricsState.dl720;
-            document.getElementById('dl-360-count').innerText = metricsState.dl360;
-            document.getElementById('track1-plays').innerText = metricsState.track1Plays;
-            document.getElementById('track2-plays').innerText = metricsState.track2Plays;
-            document.getElementById('track3-plays').innerText = metricsState.track3Plays;
-        }
+        window.updateMetricsUI = function() {
+            const totalListEl = document.getElementById('total-listeners-display');
+            const totalDlEl = document.getElementById('total-downloads-display');
+            const activeStrEl = document.getElementById('active-streams-display');
+            const dl720El = document.getElementById('dl-720-count');
+            const dl360El = document.getElementById('dl-360-count');
+            const t1El = document.getElementById('track1-plays');
+            const t2El = document.getElementById('track2-plays');
+            const t3El = document.getElementById('track3-plays');
 
-        function registerDownload(type) {
+            if (totalListEl) totalListEl.innerText = metricsState.totalListeners.toLocaleString();
+            if (totalDlEl) totalDlEl.innerText = metricsState.totalDownloads.toLocaleString();
+            if (activeStrEl) activeStrEl.innerText = (metricsState.track1Plays + metricsState.track2Plays + metricsState.track3Plays).toLocaleString();
+            if (dl720El) dl720El.innerText = metricsState.dl720;
+            if (dl360El) dl360El.innerText = metricsState.dl360;
+            if (t1El) t1El.innerText = metricsState.track1Plays;
+            if (t2El) t2El.innerText = metricsState.track2Plays;
+            if (t3El) t3El.innerText = metricsState.track3Plays;
+        };
+
+        window.registerDownload = function(type) {
             metricsState.totalDownloads += 1;
             if (type.includes('720p')) {
                 metricsState.dl720 += 1;
@@ -1171,10 +1236,10 @@
                 localStorage.setItem('hype_dl_360', metricsState.dl360);
             }
             localStorage.setItem('hype_total_downloads', metricsState.totalDownloads);
-            updateMetricsUI();
-        }
+            window.updateMetricsUI();
+        };
 
-        function registerListen(trackName, elementId) {
+        window.registerListen = function(trackName, elementId) {
             metricsState.totalListeners += 1;
             if (elementId === 'track1-plays') {
                 metricsState.track1Plays += 1;
@@ -1187,32 +1252,37 @@
                 localStorage.setItem('hype_t3_plays', metricsState.track3Plays);
             }
             localStorage.setItem('hype_total_listeners', metricsState.totalListeners);
-            updateMetricsUI();
+            window.updateMetricsUI();
+        };
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
         }
 
-        updateMetricsUI();
-
-        /* --- 4. Clean Real Comment Section Logic --- */
-        const initialComments = [];
-
-        function getStoredComments() {
+        window.getStoredComments = function() {
             const stored = localStorage.getItem('hype_comments');
             if (stored) {
                 try {
                     return JSON.parse(stored);
                 } catch(e) {
-                    return initialComments;
+                    return [];
                 }
             }
-            return initialComments;
-        }
+            return [];
+        };
 
-        function saveComments(comments) {
+        window.saveComments = function(comments) {
             localStorage.setItem('hype_comments', JSON.stringify(comments));
-        }
+        };
 
-        function renderComments() {
-            const comments = getStoredComments();
+        window.renderComments = function() {
+            const comments = window.getStoredComments();
             const container = document.getElementById('comments-container');
             if (!container) return;
 
@@ -1227,7 +1297,7 @@
 
             container.innerHTML = comments.map(c => `
                 <div class="comment-card">
-                    <div class="avatar">${c.author.charAt(0).toUpperCase()}</div>
+                    <div class="avatar">${escapeHtml(c.author).charAt(0).toUpperCase()}</div>
                     <div class="comment-content">
                         <div class="comment-meta">
                             <div>
@@ -1238,7 +1308,7 @@
                         </div>
                         <p class="comment-text">${escapeHtml(c.text)}</p>
                         <div class="comment-actions">
-                            <button class="like-btn ${c.liked ? 'liked' : ''}" onclick="toggleLike(${c.id})">
+                            <button class="like-btn ${c.liked ? 'liked' : ''}" onclick="window.toggleLike(${c.id})">
                                 <i class="${c.liked ? 'fa-solid' : 'fa-regular'} fa-thumbs-up"></i>
                                 <span>${c.likes}</span> Likes
                             </button>
@@ -1246,9 +1316,63 @@
                     </div>
                 </div>
             `).join('');
-        }
+        };
 
-        /* --- ... existing comment functions ... --- */
+        window.handleCommentSubmit = function(event) {
+            event.preventDefault();
+            const authorInput = document.getElementById('comment-author');
+            const emailInput = document.getElementById('comment-email');
+            const textInput = document.getElementById('comment-text');
+
+            if (!authorInput || !emailInput || !textInput) return;
+
+            const author = authorInput.value.trim();
+            const email = emailInput.value.trim();
+            const text = textInput.value.trim();
+
+            if (!author || !email || !text) return;
+
+            const newComment = {
+                id: Date.now(),
+                author: author,
+                email: email,
+                text: text,
+                time: 'Just now',
+                likes: 0,
+                liked: false
+            };
+
+            const comments = window.getStoredComments();
+            comments.unshift(newComment);
+            window.saveComments(comments);
+
+            authorInput.value = '';
+            emailInput.value = '';
+            textInput.value = '';
+
+            window.renderComments();
+        };
+
+        window.toggleLike = function(commentId) {
+            const comments = window.getStoredComments();
+            const comment = comments.find(c => c.id === commentId);
+            if (comment) {
+                if (comment.liked) {
+                    comment.likes -= 1;
+                    comment.liked = false;
+                } else {
+                    comment.likes += 1;
+                    comment.liked = true;
+                }
+                window.saveComments(comments);
+                window.renderComments();
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            window.updateMetricsUI();
+            window.renderComments();
+        });
     </script>
 </body>
 </html>
